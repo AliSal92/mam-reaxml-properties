@@ -1,0 +1,17 @@
+{
+  "name": "mam/reaxml-properties",
+  "description": "a Wordpress plugin to easily add properties to your website using REAXML feed. (requires ACF Pro to be installed and active)",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Ali",
+      "email": "ali.alsalti1992@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MAM\\Plugin\\" : "inc/"
+    }
+  }
+}

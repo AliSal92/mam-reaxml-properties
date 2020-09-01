@@ -9,6 +9,7 @@ $the_query = apply_filters('mam-property-filtered-posts', $_GET);
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    <label for="sort_properties" style="display: none;"></label>
                     <select id="sort_properties" onchange="if (this.value) window.location.href=this.value" class="pull-right form-control">
                         <option value="<?php echo add_sort_to_current_url(''); ?>" <?php if (isset($_GET['sort']) && $_GET['sort'] == 'new-old') {
                             echo 'selected';
@@ -74,7 +75,7 @@ $the_query = apply_filters('mam-property-filtered-posts', $_GET);
                                 <div class="hover-effect"></div>
                             </div>
                             <div class="mam-property-content">
-                                <h4><?php echo $streetNumber; ?><?php echo $street; ?></h4>
+                                <h4><?php echo $streetNumber; ?>&nbsp;<?php echo $street; ?></h4>
                                 <h2><?php echo $suburb; ?></h2>
                                 <div class="mam-property-excerpt">
                                     <?php

@@ -123,7 +123,7 @@ $remainingImages = $imagesCount - 3;
                         <div class="mam-property-item-footer">
                             <div class="price">
                                 <p><b><?php echo $priceText; ?></b></p>
-                                <p><a href="https://www.1form.com/au/tenant/application/start/" target="_blank"><img src="https://1form.com/buttons/default.png" /></a> </p>
+                                <p><a href="https://www.1form.com/au/tenant/application/start/" target="_blank"><img alt="apply-link" src="https://1form.com/buttons/default.png" /></a> </p>
                             </div>
                             <div class="property-info">
                                 <span class="property-info-item"><i class="fas fa-bed"></i> <?php echo $beds; ?></span>
@@ -135,22 +135,24 @@ $remainingImages = $imagesCount - 3;
                 </div>
 
                 <div class="col-md-8">
-                    <div class="mam-property-item-inner mam-property-item-inner-single">
-                        <div class="mam-property-content">
-                            <h4 class="text text-big big"><?php _e('Property Dates and Times'); ?></h4>
-                        </div>
-                        <hr/>
-                        <div class="mam-property-item-footer">
-                            <p class="text text-big big"><?php _e('Rental Available Date'); ?></p>
-                            <div class="mam-property-excerpt">
-                                <?php
-                                foreach ($inspectionTimes as $time) {
-                                    echo '<p><i class="fas fa-calendar-alt"></i> ' . $time . '</p>';
-                                }
-                                ?>
+                    <?php if(!empty($inspectionTimes)){ ?>
+                        <div class="mam-property-item-inner mam-property-item-inner-single">
+                            <div class="mam-property-content">
+                                <h4 class="text text-big big"><?php _e('Property Dates and Times'); ?></h4>
+                            </div>
+                            <hr/>
+                            <div class="mam-property-item-footer">
+                                <p class="text text-big big"><?php _e('Rental Available Date'); ?></p>
+                                <div class="mam-property-excerpt">
+                                    <?php
+                                    foreach ($inspectionTimes as $time) {
+                                        echo '<p><i class="fas fa-calendar-alt"></i> ' . $time . '</p>';
+                                    }
+                                    ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <?php } ?>
 
                     <div class="mam-property-item-inner mam-property-item-inner-single">
                         <div class="mam-property-content">
@@ -283,7 +285,7 @@ $remainingImages = $imagesCount - 3;
             geocoder.geocode({'address': address}, function(results, status) {
                 if (status === 'OK') {
                     map.setCenter(results[0].geometry.location);
-                    var marker = new google.maps.Marker({
+                    new google.maps.Marker({
                         map: map,
                         position: results[0].geometry.location
                     });

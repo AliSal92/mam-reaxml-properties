@@ -5,6 +5,8 @@ namespace MAM\Plugin;
 
 
 use MAM\Plugin\Services\Base\Enqueue;
+use MAM\Plugin\Services\Admin\Console;
+use MAM\Plugin\Services\Import\Import;
 use MAM\Plugin\Services\PostType\Property;
 use MAM\Plugin\Services\SearchForm\SearchForm;
 
@@ -17,7 +19,9 @@ final class Init
     public static function get_services()
     {
         return [
+            Import::class,
             Enqueue::class,
+            Console::class,
             Property::class,
             SearchForm::class
         ];

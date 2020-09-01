@@ -60,6 +60,30 @@ class Import implements ServiceInterface
 
     }
 
+
+    /**
+     * Run importer
+     */
+    public function run(){
+        // donwload all the files from the server
+        $this->download_files();
+
+        // unpublish all properpies
+        $this->unpublish_properties();
+
+        // get the properties list from the downloaded files
+        $properties = $this->get_listings_array();
+
+        // import and publish all the properties
+        foreach ($properties as $property){
+            if($this->property_exists((string)$property['id'])){
+                $this->update_property($property);
+            }else{
+                $this->add_property($property);
+            }
+        }
+    }
+
     /**
      * Download REAXML file from host
      */

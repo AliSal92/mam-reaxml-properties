@@ -30,6 +30,11 @@ class Import implements ServiceInterface
      */
     private $download_path;
 
+    /**
+     * @var array
+     */
+    private $errors;
+
 
     public function __construct()
     {
@@ -43,19 +48,22 @@ class Import implements ServiceInterface
      */
     public function register()
     {
+        add_action( 'admin_notices', array($this, 'show_admin_notice') );
         $this->endpoint_api->add_endpoint('mam-reaxml-import')->with_template('mam-reaxml-import.php')->register_endpoints();
 
-        try {
-            $this->ftp->connect(Config::getInstance()->ftp_host);
-        } catch (FtpException $e) {
-            echo $e->getMessage();
-            die();
-        }
-        try {
-            $this->ftp->login(Config::getInstance()->ftp_username, Config::getInstance()->ftp_password);
-        } catch (FtpException $e) {
-            echo $e->getMessage();
-            die();
+        if(Config::getInstance()->ftp_host && Config::getInstance()->ftp_username && Config::getInstance()->ftp_password){
+            try {
+                $this->ftp->connect(Config::getInstance()->ftp_host);
+            } catch (FtpException $e) {
+                $errors[] = $e->getMessage();
+            }
+            try {
+                $this->ftp->login(Config::getInstance()->ftp_username, Config::getInstance()->ftp_password);
+            } catch (FtpException $e) {
+                $errors[] = $e->getMessage();
+            }
+
+            add_action('mam_reaxml_import', array($this, 'run'));
         }
 
     }
@@ -82,6 +90,47 @@ class Import implements ServiceInterface
                 $this->add_property($property);
             }
         }
+    }
+
+    /**
+     * Show admin notices
+     */
+    public function show_admin_notice() {
+        if(!empty($this->errors)){
+            foreach($this->errors as $error){
+        ?>
+        <div class="notice error my-acf-notice is-dismissible" >
+            <p><?php echo $error; ?></p>
+        </div>
+        <?php
+            }
+        }
+    }
+
+
+    /**
+     * Setup cronjob
+     */
+    public static function setup_cron_job()
+    {
+        //Use wp_next_scheduled to check if the event is already scheduled
+        $timestamp = wp_next_scheduled( 'mam_reaxml_import' );
+
+        //If $timestamp === false schedule daily backups since it hasn't been done previously
+        if( $timestamp === false ){
+            //Schedule the event for right now, then to repeat daily using the hook 'update_whatToMine_api'
+            wp_schedule_event( time(), 'twicedaily', 'mam_reaxml_import' );
+        }
+    }
+
+    /**
+     * Unset cronjob
+     */
+    public static function unset_cron_job()
+    {
+        // Get the timestamp for the next event.
+        $timestamp = wp_next_scheduled( 'mam_reaxml_import' );
+        wp_unschedule_event( $timestamp, 'mam_reaxml_import' );
     }
 
     /**

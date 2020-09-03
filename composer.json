@@ -13,5 +13,9 @@
     "psr-4": {
       "MAM\\Plugin\\" : "inc/"
     }
+  },
+  "require": {
+    "nicolab/php-ftp-client": "^1.5",
+    "ext-simplexml": "*"
   }
 }

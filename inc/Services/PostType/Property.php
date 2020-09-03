@@ -6,6 +6,7 @@ namespace MAM\Plugin\Services\PostType;
 
 use MAM\Plugin\Config;
 use MAM\Plugin\Services\ServiceInterface;
+use WP_Query;
 
 class Property implements ServiceInterface
 {
@@ -1035,6 +1036,8 @@ class Property implements ServiceInterface
 
     /**
      * [mam-property-listing] function
+     * @param $atts array
+     * @return false|string
      */
     public function mam_property_listing($atts)
     {
@@ -1052,6 +1055,7 @@ class Property implements ServiceInterface
             include $exists_in_theme;
         } else {
             // nope, load the content
+            /** @noinspection PhpIncludeInspection */
             include $this->plugin_path . 'templates/mam-property-listing.php';
         }
         return ob_get_clean();
@@ -1059,20 +1063,26 @@ class Property implements ServiceInterface
 
     /**
      * Get the properties filtered
+     * @param $getData array
+     * @return WP_Query
      */
     public function filtered_posts($getData)
     {
         global $a;
 
+        $status = '';
         $type = 'rental';
         if (isset($a['type'])) {
+            $status = 'current';
             if ($a['type'] == 'for-sale') {
                 $type = 'residential';
             }
         }
 
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $sort = '';
         if (isset($getData['sort'])) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             $sort = $getData['sort'];
         }
 
@@ -1114,6 +1124,14 @@ class Property implements ServiceInterface
 
         $meta_query = [];
         $meta_query['relation'] = 'AND';
+
+        if ($status != '') {
+            $meta_query[] = [
+                'key' => 'status',
+                'value' => $status,
+                'compare' => '='
+            ];
+        }
 
         if ($suburb != '') {
             $meta_query[] = [
@@ -1179,6 +1197,6 @@ class Property implements ServiceInterface
         );
 
         // query
-        return new \WP_Query($args);
+        return new WP_Query($args);
     }
 }

@@ -50,6 +50,8 @@ class Import implements ServiceInterface
     {
         add_action( 'admin_notices', array($this, 'show_admin_notice') );
         add_action('mam_reaxml_import', array($this, 'run'));
+        add_action( 'init', array($this, 'setup_cron_job') );
+
         try {
             $this->endpoint_api->add_endpoint('mam-reaxml-import')->with_template('mam-reaxml-import.php')->register_endpoints();
         } catch (Exception $e) {
@@ -143,16 +145,6 @@ class Import implements ServiceInterface
     }
 
     /**
-     * Unset cronjob
-     */
-    public static function unset_cron_job()
-    {
-        // Get the timestamp for the next event.
-        $timestamp = wp_next_scheduled( 'mam_reaxml_import' );
-        wp_unschedule_event( $timestamp, 'mam_reaxml_import' );
-    }
-
-    /**
      * Get a list of all properties in the feed
      * @return SimpleXMLElement[] listing array
      * @throws Exception
@@ -167,17 +159,11 @@ class Import implements ServiceInterface
                 $xmlData = simplexml_load_file($this->download_path . '/' . $file);
                 if($xmlData){
                     foreach ($xmlData->rental as $rental) {
-                        if ((string)$rental['status'] != 'current') {
-                            continue;
-                        }
                         $rental['type'] = 'rental';
                         $rental['id'] = $rental->uniqueID;
                         $res[(string)$rental['id']] = $rental;
                     }
                     foreach ($xmlData->residential as $residential) {
-                        if ((string)$residential['status'] != 'current') {
-                            continue;
-                        }
                         $residential['type'] = 'residential';
                         $residential['id'] = $residential->uniqueID;
                         $res[(string)$residential['id']] = $residential;

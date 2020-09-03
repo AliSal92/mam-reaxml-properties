@@ -25,10 +25,12 @@ namespace MAM;
 
 use MAM\Plugin\Init;
 
+
 /**
  * Prevent direct access
  */
 defined('ABSPATH') or die('</3');
+
 
 /**
  * Require once the Composer Autoload
@@ -36,17 +38,6 @@ defined('ABSPATH') or die('</3');
 if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
     require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 }
-
-/**
- * The code that runs during plugin activation
- */
-register_activation_hook( __FILE__ . '/ActivateDeactivate.php', 'activate_mam_property_plugin' );
-
-
-/**
- * The code that runs during plugin deactivation
- */
-register_activation_hook( __FILE__ . '/ActivateDeactivate.php', 'deactivate_mam_property_plugin' );
 
 /**
  * Initialize and run all the core classes of the plugin

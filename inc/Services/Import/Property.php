@@ -220,6 +220,11 @@ class Property
      */
     public $post_id;
 
+    /**
+     * @var string
+     */
+    public $post_title;
+
 
     /**
      * Property constructor.
@@ -228,6 +233,7 @@ class Property
     public function __construct($property)
     {
         $this->property_id = (int)$property['id'];
+
         $this->rent_period_week = '';
         $this->rent_period_monthly = '';
         $this->bond = '';
@@ -236,6 +242,7 @@ class Property
             $this->rent_period_monthly = (string)$property->children()->rent[1];
             $this->bond = (string)$property->bond;
         }
+
         $this->dateAvailable = (string)$property->children()->dateAvailable;
         $this->agentID = (string)$property->agentID;
         $this->uniqueID = (string)$property->uniqueID;
@@ -260,15 +267,25 @@ class Property
         $this->description = (string)$property->description;
         $this->landDetails = (string)$property->landDetails->area;
         $this->buildingDetails = (string)$property->buildingDetails->area;
+        $this->videolinkvideolink = (string)$property->videoLink['href'];
+        $this->newconstruction = (string)$property->newConstruction;
+        $this->floorplan = (string)$property->objects->floorplan['url'];
+        $this->miniweb = (string)$property->miniweb->uri;
+        $this->original_data = $property->asXML();
+        $this->bed = (int)$property->features->bedrooms;
+        $this->car = (int)$property->features->garages;
+        $this->bath = (int)$property->features->bathrooms;
+
         $this->inspections = [];
         foreach ($property->inspectionTimes->inspection as $inspectionTime) {
             if (trim((string)$inspectionTime)) {
                 $inspection = [
                     'option' => (string)$inspectionTime
                 ];
-                $inspections[] = $inspection;
+                $this->inspections[] = $inspection;
             }
         }
+
         $this->externalLinks = [];
         $video = (string)$property->videoLink['href'];
         if ($video) {
@@ -276,16 +293,15 @@ class Property
                 'text' => 'Video',
                 'link' => $video
             ];
-            $externalLinks[] = $externalLink;
+            $this->externalLinks[] = $externalLink;
         }
         if ((string)$property->objects->floorplan['url']) {
             $externalLink = [
                 'text' => 'Floorplan',
                 'link' => (string)$property->objects->floorplan['url']
             ];
-            $externalLinks[] = $externalLink;
+            $this->externalLinks[] = $externalLink;
         }
-
 
         $this->images = [];
         foreach ($property->images[0] as $image) {
@@ -293,7 +309,7 @@ class Property
                 $image = [
                     'image' => (string)$image['url']
                 ];
-                $images[] = $image;
+                $this->images[] = $image;
             }
         }
 
@@ -308,15 +324,8 @@ class Property
             }
         }
 
-        $this->videolinkvideolink = (string)$property->videoLink['href'];
-        $this->newconstruction = (string)$property->newConstruction;
-        $this->floorplan = (string)$property->objects->floorplan['url'];
-        $this->miniweb = (string)$property->miniweb->uri;
-        $this->original_data = $property->asXML();
-        $this->bed = (int)$property->features->bedrooms;
-        $this->car = (int)$property->features->garages;
-        $this->bath = (int)$property->features->bathrooms;
         $this->post_id = $this->property_post_id();
+        $this->post_title = $this->site . ' ' . $this->subnumber . ' ' . $this->lotnumber . ' ' . $this->streetnumber . ' ' . $this->street;
     }
 
     /**
@@ -330,7 +339,7 @@ class Property
         $post_id = $this->post_id;
         if (!$post_id) {
             $post_id = wp_insert_post(array(
-                'post_title' => $this->site . ' ' . $this->subnumber . ' ' . $this->lotnumber . ' ' . $this->streetnumber . ' ' . $this->street,
+                'post_title' => $this->post_title,
                 'post_type' => 'property',
                 'post_status' => 'publish',
             ));

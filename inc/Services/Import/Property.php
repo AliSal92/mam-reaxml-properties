@@ -313,17 +313,20 @@ class Property
             }
         }
 
-        $this->features = $this->get_features_array($property->features);
         $this->agents = [];
-        foreach ($property->images[0] as $image) {
-            if ((string)$image['url']) {
-                $image = [
-                    'image' => (string)$image['url']
+        foreach ($property->listingAgent as $agent) {
+            if(trim((string)$agent->name)){
+                $_agent = [
+                    'name' => (string)$agent->name,
+                    'phone' => (string)$agent->telephone[0],
+                    'phone2' => (string)$agent->telephone[1],
+                    'email' => (string)$agent->email,
                 ];
-                $images[] = $image;
+                $this->agents[] = $_agent;
             }
         }
 
+        $this->features = $this->get_features_array($property->features);
         $this->post_id = $this->property_post_id();
         $this->post_title = $this->site . ' ' . $this->subnumber . ' ' . $this->lotnumber . ' ' . $this->streetnumber . ' ' . $this->street;
     }
@@ -402,6 +405,11 @@ class Property
         delete_post_meta($post_id, 'features');
         foreach ($this->features as $feature) {
             add_row('features', $feature);
+        }
+
+        delete_post_meta($post_id, 'agents');
+        foreach ($this->agents as $agent) {
+            add_row('agents', $agent);
         }
 
         return $post_id;

@@ -24,6 +24,7 @@ $features = [];
 $headline = get_field('headline');
 $description = get_field('description');
 $externallink = [];
+$agents = [];
 
 if (have_rows('images')) {
     while (have_rows('images')) {
@@ -53,6 +54,18 @@ if (have_rows('externallink')) {
         $item[0] = get_sub_field('text');
         $item[1] = get_sub_field('link');
         $externallink[] = $item;
+    }
+}
+
+if (have_rows('agents')) {
+    while (have_rows('agents')) {
+        the_row();
+        $item = [];
+        $item[0] = get_sub_field('name');
+        $item[1] = get_sub_field('phone');
+        $item[2] = get_sub_field('phone2');
+        $item[3] = get_sub_field('email');
+        $agents[] = $item;
     }
 }
 
@@ -116,14 +129,14 @@ $remainingImages = $imagesCount - 3;
                 <div class="col-md-12">
                     <div class="mam-property-item-inner mam-property-item-inner-single">
                         <div class="mam-property-content">
-                            <h4><?php echo $streetNumber; ?> <?php echo $street; ?></h4>
+                            <h4><?php echo $streetNumber; ?><?php echo $street; ?></h4>
                             <h2><?php echo $suburb; ?></h2>
                         </div>
                         <hr/>
                         <div class="mam-property-item-footer">
                             <div class="price">
                                 <p><b><?php echo $priceText; ?></b></p>
-                                <p><a href="https://www.1form.com/au/tenant/application/start/" target="_blank"><img alt="apply-link" src="https://1form.com/buttons/default.png" /></a> </p>
+                                <p><a href="https://www.1form.com/au/tenant/application/start/" target="_blank"><img alt="apply-link" src="https://1form.com/buttons/default.png"/></a></p>
                             </div>
                             <div class="property-info">
                                 <span class="property-info-item"><i class="fas fa-bed"></i> <?php echo $beds; ?></span>
@@ -135,7 +148,7 @@ $remainingImages = $imagesCount - 3;
                 </div>
 
                 <div class="col-md-8">
-                    <?php if(!empty($inspectionTimes)){ ?>
+                    <?php if (!empty($inspectionTimes)) { ?>
                         <div class="mam-property-item-inner mam-property-item-inner-single">
                             <div class="mam-property-content">
                                 <h4 class="text text-big big"><?php _e('Property Dates and Times'); ?></h4>
@@ -163,7 +176,7 @@ $remainingImages = $imagesCount - 3;
                             <p><?php _e('Property ID:'); ?><?php echo $propertyID; ?></p>
                         </div>
                         <hr/>
-                        <?php if($bond){ ?>
+                        <?php if ($bond) { ?>
                             <div class="mam-property-content">
                                 <p><?php _e('Bond'); ?>
                                     <br/>
@@ -171,22 +184,22 @@ $remainingImages = $imagesCount - 3;
                             </div>
                             <hr/>
                         <?php } ?>
-                        <?php if($landDetails || $buildingDetails){ ?>
+                        <?php if ($landDetails || $buildingDetails) { ?>
                             <div class="mam-property-content">
                                 <div class="row">
-                                    <?php if($landDetails){ ?>
-                                    <div class="col-md-6">
-                                        <p><?php _e('Land Size'); ?>
-                                            <br/>
-                                            <?php echo ($landDetails); ?> m<sup>2</sup></p>
-                                    </div>
+                                    <?php if ($landDetails) { ?>
+                                        <div class="col-md-6">
+                                            <p><?php _e('Land Size'); ?>
+                                                <br/>
+                                                <?php echo($landDetails); ?> m<sup>2</sup></p>
+                                        </div>
                                     <?php } ?>
-                                    <?php if($buildingDetails){ ?>
-                                    <div class="col-md-6">
-                                        <p><?php _e('Floor Area'); ?>
-                                            <br/>
-                                            <?php echo ($buildingDetails); ?> m<sup>2</sup></p>
-                                    </div>
+                                    <?php if ($buildingDetails) { ?>
+                                        <div class="col-md-6">
+                                            <p><?php _e('Floor Area'); ?>
+                                                <br/>
+                                                <?php echo($buildingDetails); ?> m<sup>2</sup></p>
+                                        </div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -223,27 +236,54 @@ $remainingImages = $imagesCount - 3;
                         <hr/>
                         <div class="mam-property-item-footer property-tools">
                             <p><a href="javascript:window.print();"><i class="fas fa-file-image"></i> <?php _e('Print Brochure'); ?></a></p>
-                            <?php foreach ($externallink as $link){ ?>
-                                <p><a href="<?php echo $link[1]; ?>" target="_blank"><i class="fas fa-external-link-alt"></i> <?php echo $link[0]; ?></a></p>
+                            <?php foreach ($externallink as $link) { ?>
+                                <p><a href="<?php echo $link[1]; ?>" data-fancybox target="_blank"><i class="fas fa-external-link-alt"></i> <?php echo $link[0]; ?></a></p>
                             <?php } ?>
                         </div>
                     </div>
-                    <div class="mam-property-item-inner mam-property-item-inner-single">
-                        <div class="mam-property-content">
-                            <h4><?php _e('Make an Enquiry'); ?></h4>
-                        </div>
-                        <hr/>
-                        <div class="mam-property-item-footer">
-                            <p><a href="tel:0732939100"><i class="fas fa-phone-alt"></i> 07 3293 9100</a></p>
-                            <p><a href="#enquire" data-fancybox data-src="#enquire" class="btn btn-primary"><?php _e('Make an Enquiry'); ?></a></p>
-                            <div style="display: none;">
-                                <div id="enquire">
-                                    <h2><?php _e('Property Enquiry'); ?></h2>
-                                    <hr />
-                                    <h4><?php _e('Property Address:'); ?><?php echo $streetNumber; ?> <?php echo $street; ?> <?php echo $suburb; ?></h4>
-                                    <?php echo do_shortcode('[ninja_form id=3]'); ?>
+
+                    <?php if (!empty($agents)) { ?>
+                        <?php foreach ($agents as $agent) { ?>
+                            <div class="mam-property-item-inner mam-property-item-inner-single">
+                                <div class="mam-property-content">
+                                    <h4><?php echo $agent[0]; ?></h4>
+                                </div>
+                                <hr/>
+                                <div class="mam-property-item-footer">
+                                    <p>
+                                        <a href="tel:<?php echo $agent[1]; ?>"><i class="fas fa-phone-alt"></i> <?php echo $agent[1]; ?></a>
+                                        <?php if ($agent[2]) { ?>
+                                            <br/><a href="tel:<?php echo $agent[2]; ?>"><i class="fas fa-mobile-alt"></i> <?php echo $agent[2]; ?></a>
+                                        <?php } ?>
+                                        <?php if ($agent[3]) { ?>
+                                            <br/><a href="mailto:<?php echo $agent[3]; ?>"><i class="far fa-envelope"></i> <?php echo $agent[3]; ?></a>
+                                        <?php } ?>
+                                    </p>
+                                    <p><a href="#enquire" data-fancybox data-src="#enquire" class="btn btn-primary"><?php _e('Make an Enquiry'); ?></a></p>
                                 </div>
                             </div>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <div class="mam-property-item-inner mam-property-item-inner-single">
+                            <div class="mam-property-content">
+                                <h4><?php _e('Make an Enquiry'); ?></h4>
+                            </div>
+                            <hr/>
+                            <div class="mam-property-item-footer">
+
+                                <p><a href="tel:0732939100"><i class="fas fa-phone-alt"></i> 07 3293 9100</a></p>
+                                <p><a href="#enquire" data-fancybox data-src="#enquire" class="btn btn-primary"><?php _e('Make an Enquiry'); ?></a></p>
+                            </div>
+                        </div>
+                    <?php } ?>
+
+
+                    <div style="display: none;">
+                        <div id="enquire">
+                            <h2><?php _e('Property Enquiry'); ?></h2>
+                            <hr/>
+                            <h4><?php _e('Property Address:'); ?><?php echo $streetNumber; ?><?php echo $street; ?><?php echo $suburb; ?></h4>
+                            <?php echo do_shortcode('[ninja_form id=3]'); ?>
                         </div>
                     </div>
                 </div>
@@ -264,6 +304,7 @@ $remainingImages = $imagesCount - 3;
             border: #ccc solid 1px;
             margin: 20px 0;
         }
+
         #map {
             max-width: inherit !important;
         }
@@ -272,6 +313,7 @@ $remainingImages = $imagesCount - 3;
         var geocoder;
         var map;
         var address = "<?php echo $streetNumber; ?> <?php echo $street; ?> <?php echo $suburb; ?><?php echo $state; ?><?php echo $postcode; ?><?php echo $country; ?>";
+
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 16,
@@ -282,7 +324,7 @@ $remainingImages = $imagesCount - 3;
         }
 
         function codeAddress(geocoder, map) {
-            geocoder.geocode({'address': address}, function(results, status) {
+            geocoder.geocode({'address': address}, function (results, status) {
                 if (status === 'OK') {
                     map.setCenter(results[0].geometry.location);
                     new google.maps.Marker({

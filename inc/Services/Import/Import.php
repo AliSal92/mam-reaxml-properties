@@ -140,7 +140,7 @@ class Import implements ServiceInterface
         //If $timestamp === false schedule daily backups since it hasn't been done previously
         if( $timestamp === false ){
             //Schedule the event for right now, then to repeat daily using the hook 'update_whatToMine_api'
-            wp_schedule_event( time(), 'twicedaily', 'mam_reaxml_import' );
+            wp_schedule_event( time(), 'hourly', 'mam_reaxml_import' );
         }
     }
 

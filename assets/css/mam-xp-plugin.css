@@ -202,12 +202,12 @@ span.image-counter-inner {
     margin: 0;
 }
 
-#enquire nf-field {
+#enquire .nf-field {
     width: 100%;
 }
 
 #enquire .nf-field-element {
-    margin-left: 0%;
+    margin-left: 0;
     width: 100%;
 }
 
@@ -226,6 +226,11 @@ span.image-counter-inner {
 .mam-property-item-inner-single p, .mam-property-item-inner-single .description {
     color: #555 !important;
     font-size: 15px;
+}
+
+.mam-property-item-footer i {
+    min-width: 18px;
+    text-align: center;
 }
 
 @media all and (min-width: 768px) {

@@ -58,6 +58,11 @@ class Property
     /**
      * @var string
      */
+    public $publishDate;
+
+    /**
+     * @var string
+     */
     public $authority;
 
     /**
@@ -225,6 +230,11 @@ class Property
      */
     public $post_title;
 
+    /**
+     * @var int
+     */
+    public $thumbnail_id;
+
 
     /**
      * Property constructor.
@@ -248,6 +258,10 @@ class Property
         $this->uniqueID = (string)$property->uniqueID;
         $this->type = (string)$property['type'];
         $this->status = (string)$property['status'];
+        $this->publishDate = (string)$property['modTime'];
+        if($this->status == "sold"){
+            $this->publishDate = (string)$property->soldDetails->soldDate;
+        }
         $this->authority = (string)$property->authority['value'];
         $this->underOffer = (string)$property->underOffer['value'];
         $this->isHomeLandPackage = (string)$property->isHomeLandPackage['value'];
@@ -258,7 +272,7 @@ class Property
         $this->lotnumber = (string)$property->address->lotNumber;
         $this->streetnumber = (string)$property->address->streetNumber;
         $this->street = (string)$property->address->street;
-        $this->suburb = (string)$property->address->streetNumbersuburb;
+        $this->suburb = (string)$property->address->suburb;
         $this->state = (string)$property->address->state;
         $this->postcode = (string)$property->address->postcode;
         $this->country = (string)$property->address->country;
@@ -328,6 +342,7 @@ class Property
 
         $this->features = $this->get_features_array($property->features);
         $this->post_id = $this->property_post_id();
+        $this->thumbnail_id = $this->get_thumbnail_id();
         $this->post_title = $this->site . ' ' . $this->subnumber . ' ' . $this->lotnumber . ' ' . $this->streetnumber . ' ' . $this->street;
     }
 
@@ -358,6 +373,12 @@ class Property
         update_field('uniqueID', $this->uniqueID, $post_id);
         update_field('type', $this->type, $post_id);
         update_field('status', $this->status, $post_id);
+        wp_update_post(
+            array (
+                'ID'            => $post_id, // ID of the post to update
+                'post_date'     => $this->publishDate
+            )
+        );
         update_field('authority', $this->authority, $post_id);
         update_field('underOffer', $this->underOffer, $post_id);
         update_field('isHomeLandPackage', $this->isHomeLandPackage, $post_id);
@@ -412,6 +433,8 @@ class Property
             add_row('agents', $agent);
         }
 
+        set_post_thumbnail( $this->post_id, $this->thumbnail_id );
+
         return $post_id;
     }
 
@@ -449,6 +472,73 @@ class Property
         return 0;
     }
 
+    /**
+     * Check if has thumbnail ready if not download and set the thumbnail
+     *
+     * @return int the property thumbnail id
+     */
+    public function get_thumbnail_id()
+    {
+        // if has thumbnail skip
+        if(has_post_thumbnail($this->post_id)){
+            return get_post_thumbnail_id( $this->post_id );
+        }
+
+        // the image url from console
+        $main_image_url = $this->images[0]['image'];
+        // check if the image exist
+        if(!$this->url_exists($main_image_url)){
+            return 0;
+        }
+        if(!$main_image_url){
+            return 0;
+        }
+
+        // get the image name
+        $main_image_name = basename($this->http_strip_query_param($main_image_url));
+
+        // get wordpress upload dir
+        $wordpress_upload_dir = wp_upload_dir();
+
+        // init the local image file
+        $new_file_path = $wordpress_upload_dir['path'] . '/' . $main_image_name;
+
+        // download the file
+        if(is_file($main_image_url)) {
+            copy($main_image_url, $new_file_path);
+        } else {
+            $options = array(
+                CURLOPT_FILE    => fopen($new_file_path, 'w'),
+                CURLOPT_TIMEOUT =>  120, // set this to 8 hours so we dont timeout on big files
+                CURLOPT_URL     => $main_image_url
+            );
+
+            $ch = curl_init();
+            curl_setopt_array($ch, $options);
+            curl_exec($ch);
+            curl_close($ch);
+        }
+
+        /* wp_insert_attachment */
+        $filetype = wp_check_filetype(basename($new_file_path), null);
+
+        $attachment = array(
+            'post_mime_type' => $filetype['type'],
+            'post_title' => sanitize_file_name(basename($new_file_path)),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        // So here we attach image to its parent's post ID from above
+        $attach_id = wp_insert_attachment($attachment, $new_file_path, $this->post_id);
+
+        // Attachment has its ID too "$attach_id"
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $attach_data = wp_generate_attachment_metadata($attach_id, $main_image_name);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        return $attach_id;
+    }
 
     /**
      * Return array of readable features
@@ -733,4 +823,34 @@ class Property
         return $_features;
     }
 
+    /**
+     * Remove the url parameters
+     *
+     * @param $url string the url with parameters
+     * @return string the url without parameters
+     */
+    private function http_strip_query_param($url)
+    {
+        if($url){
+            $pieces = parse_url($url);
+            if (!$pieces['query']) {
+                return $url;
+            }
+
+            $query = [];
+            $pieces['query'] = http_build_query($query);
+            return 'https://' . $pieces['host'] . $pieces['path'];
+            //return http_build_url($pieces);
+        }
+    }
+
+    /**
+     * Check if the URL exists
+     *
+     * @param $url the URL
+     * @return bool true if the URL exists false if not
+     */
+    private function url_exists($url) {
+        return curl_init($url) !== false;
+    }
 }

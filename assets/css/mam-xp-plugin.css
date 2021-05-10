@@ -233,6 +233,113 @@ span.image-counter-inner {
     text-align: center;
 }
 
+.agent-image {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.page-numbers {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 2px 0 0;
+    border: 1px solid #eee;
+    line-height: 1;
+    text-decoration: none;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+.page-numbers.current,
+a.page-numbers:hover {
+    background: #f9f9f9;
+}
+
+.mam-property-item-leased .mam-property-featured-image:before {
+    content: "Leased";
+    position: absolute;
+    transform: rotate(-45deg);
+    top: 28px;
+    display: inline-block;
+    color: #fff;
+    background-color: rgba(255, 0, 0, 0.8);
+    width: 150px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    left: -32px;
+    font-size: 20px;
+}
+
+.mam-property-item-leased .mam-property-featured-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.mam-property-item-sold .mam-property-featured-image:before {
+    content: "Sold";
+    position: absolute;
+    transform: rotate(-45deg);
+    top: 28px;
+    display: inline-block;
+    color: #fff;
+    background-color: rgba(255, 0, 0, 0.8);
+    width: 150px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    left: -32px;
+    font-size: 20px;
+}
+
+.mam-property-item-sold .mam-property-featured-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.archive-single-property-header-leased:before {
+    content: "Leased";
+    position: absolute;
+    transform: rotate(-45deg);
+    top: 28px;
+    display: inline-block;
+    color: #fff;
+    background-color: rgba(255, 0, 0, 0.8);
+    width: 150px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    left: -32px;
+    font-size: 20px;
+    z-index: 1;
+}
+
+.archive-single-property-header-leased {
+    position: relative;
+    overflow: hidden;
+}
+
+.archive-single-property-header-sold:before {
+    content: "Sold";
+    position: absolute;
+    transform: rotate(-45deg);
+    top: 28px;
+    display: inline-block;
+    color: #fff;
+    background-color: rgba(255, 0, 0, 0.8);
+    width: 150px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    left: -32px;
+    font-size: 20px;
+    z-index: 1;
+}
+
+.archive-single-property-header-sold {
+    position: relative;
+    overflow: hidden;
+}
+
 @media all and (min-width: 768px) {
     .search-main .col-md-8 {
         padding-right: 0;

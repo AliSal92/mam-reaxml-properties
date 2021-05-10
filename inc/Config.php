@@ -36,7 +36,6 @@ class Config
      * @var string The ftp path to the reaxml files
      */
     public $ftp_path;
-
     /**
      * @var Config Used for singleton class setup
      */

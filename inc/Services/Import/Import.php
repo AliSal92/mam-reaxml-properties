@@ -40,7 +40,7 @@ class Import implements ServiceInterface
     {
         $this->ftp = new FtpClient();
         $this->endpoint_api = new Endpoint();
-        $this->download_path = Config::getInstance()->plugin_path . '/downloads';
+        $this->download_path = Config::getInstance()->plugin_path . 'downloads';
     }
 
     /**
@@ -51,6 +51,8 @@ class Import implements ServiceInterface
         add_action( 'admin_notices', array($this, 'show_admin_notice') );
         add_action('mam_reaxml_import', array($this, 'run'));
         add_action( 'init', array($this, 'setup_cron_job') );
+        add_filter('cron_schedules',array($this, 'cron_schedules'));
+
 
         try {
             $this->endpoint_api->add_endpoint('mam-reaxml-import')->with_template('mam-reaxml-import.php')->register_endpoints();
@@ -76,20 +78,33 @@ class Import implements ServiceInterface
                 $this->errors[] = $e->getMessage();
             }
         }
+        echo "<p>Connected Successfully</p>";
 
         // donwload all the files from the server
         $this->download_files();
+        echo "<p>Downloaded Successfully</p>";
 
         // get the properties list from the downloaded files
         try {
             $properties = $this->get_listing_array();
             foreach ($properties as $property){
+                if($property['id'] == '3324285' || $property['id'] == '3324271'){
+                    continue;
+                }
                 $the_property = new Property($property);
                 $the_property->update();
+                echo "<p>Property: #" . $property['id'] . " Updated</p>";
             }
         } catch (Exception $e) {
             $this->errors[] = $e->getMessage();
         }
+        if ( function_exists( 'rocket_clean_domain' ) ) {
+            rocket_clean_domain();
+        }
+        if ( function_exists( 'run_rocket_sitemap_preload' ) ) {
+            run_rocket_sitemap_preload();
+        }
+        echo "<p>Imported Successfully</p>";
     }
 
     /**
@@ -129,6 +144,24 @@ class Import implements ServiceInterface
         return $xml_files_list;
     }
 
+
+    /**
+     * Setup schedule
+     */
+    function cron_schedules($schedules){
+        if(!isset($schedules["5min"])){
+            $schedules["5min"] = array(
+                'interval' => 5*60,
+                'display' => __('Once every 5 minutes'));
+        }
+        if(!isset($schedules["30min"])){
+            $schedules["30min"] = array(
+                'interval' => 30*60,
+                'display' => __('Once every 30 minutes'));
+        }
+        return $schedules;
+    }
+
     /**
      * Setup cronjob
      */
@@ -140,7 +173,7 @@ class Import implements ServiceInterface
         //If $timestamp === false schedule daily backups since it hasn't been done previously
         if( $timestamp === false ){
             //Schedule the event for right now, then to repeat daily using the hook 'update_whatToMine_api'
-            wp_schedule_event( time(), 'hourly', 'mam_reaxml_import' );
+            wp_schedule_event( time(), '5min', 'mam_reaxml_import' );
         }
     }
 
@@ -176,5 +209,7 @@ class Import implements ServiceInterface
         }
         return $res;
     }
+
+
 
 }

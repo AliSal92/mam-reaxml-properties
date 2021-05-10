@@ -56,23 +56,26 @@ class Enqueue implements ServiceInterface
      */
     public function register_js()
     {
-        wp_deregister_script('jquery');
-        wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js', false, '2.2.4');
-        wp_enqueue_script('jquery');
+        global $post;
+        if(is_singular('property') || has_shortcode($post->post_content, 'mam-property-listing')){
+            wp_deregister_script('jquery');
+            wp_register_script('jquery', $this->plugin_url . 'assets/js/jquery.min.js', false, '2.2.4');
+            wp_enqueue_script('jquery');
 
-        wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js', false);
+            wp_register_script('fancybox', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js', array('jquery'), '', false);
+            wp_enqueue_script('fancybox');
+        }
+
+        wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js', false, '', true);
         wp_enqueue_script('popper');
 
-        wp_register_script('bootstrap', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js', array('jquery', 'popper'));
+        wp_register_script('bootstrap', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js', array('jquery', 'popper'), '', true);
         wp_enqueue_script('bootstrap');
 
-        wp_register_script('bootstrap-select', 'https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js', array('jquery', 'bootstrap', 'popper'));
+        wp_register_script('bootstrap-select', 'https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js', array('jquery', 'bootstrap', 'popper'), '', true);
         wp_enqueue_script('bootstrap-select');
 
-        wp_register_script('fancybox', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js', array('jquery'));
-        wp_enqueue_script('fancybox');
-
-        wp_register_script('mam-xp-plugin', $this->plugin_url . 'assets/js/mam-xp-plugin.js', array('jquery'));
+        wp_register_script('mam-xp-plugin', $this->plugin_url . 'assets/js/mam-xp-plugin.js', array('jquery'), '', true);
         wp_enqueue_script('mam-xp-plugin');
     }
 

@@ -4,9 +4,9 @@
 namespace MAM\Plugin\Services\PostType;
 
 
+use WP_Query;
 use MAM\Plugin\Config;
 use MAM\Plugin\Services\ServiceInterface;
-use WP_Query;
 
 class Property implements ServiceInterface
 {
@@ -28,6 +28,7 @@ class Property implements ServiceInterface
         add_filter('single_template', array($this, 'init_property_template'));
         add_filter('template_include', array($this, 'archive_template'));
         add_filter('mam-property-filtered-posts', array($this, 'filtered_posts'));
+        add_filter('mam-property-sort-current-url', array($this, 'add_sort_to_current_url'));
         add_action('acf/init', array($this, 'add_property_custom_fields'));
         add_shortcode('mam-property-listing', [$this, 'mam_property_listing']);
     }
@@ -1139,7 +1140,9 @@ class Property implements ServiceInterface
     {
         global $a;
         $a = shortcode_atts(array(
-            'type' => 'for-sale'
+            'type' => 'for-sale',
+            'limit' => '9999',
+            'show_title' => 'yes',
         ), $atts);
 
         $theme_files = array('mam-property-listing.php', 'mam-property/mam-property-listing.php');
@@ -1173,6 +1176,14 @@ class Property implements ServiceInterface
             if ($a['type'] == 'for-sale') {
                 $type = 'residential';
             }
+            if ($a['type'] == 'leased') {
+                $type = 'rental';
+                $status = 'leased';
+            }
+            if ($a['type'] == 'sold') {
+                $type = 'residential';
+                $status = 'sold';
+            }
         }
 
         /** @noinspection PhpUnusedLocalVariableInspection */
@@ -1180,6 +1191,15 @@ class Property implements ServiceInterface
         if (isset($getData['sort'])) {
             /** @noinspection PhpUnusedLocalVariableInspection */
             $sort = $getData['sort'];
+        }
+        $order = 'DESC';
+        if($sort == 'old-new'){
+            $order = 'ASC';
+        }
+        if($status == 'sold' || $status == 'leased'){
+            if($sort == ''){
+                $order = 'ASC';
+            }
         }
 
 
@@ -1201,19 +1221,19 @@ class Property implements ServiceInterface
         }
 
 
-        $bed = '1';
+        $bed = '0';
         if (isset($getData['bed'])) {
             $bed = $getData['bed'];
         }
 
 
-        $bath = '1';
+        $bath = '0';
         if (isset($getData['bath'])) {
             $bath = $getData['bath'];
         }
 
 
-        $car = '1';
+        $car = '0';
         if (isset($getData['car'])) {
             $car = $getData['car'];
         }
@@ -1287,12 +1307,32 @@ class Property implements ServiceInterface
 
         // args
         $args = array(
-            'numberposts' => -1,
-            'post_type' => 'property',
-            'meta_query' => $meta_query
+        'posts_per_page'    => 9,
+        'numberposts'       => -1,
+        'paged'             => get_query_var('paged') ? get_query_var('paged') : 1,
+        'post_type'         => 'property',
+        'order'             => $order,
+        'meta_query'        => $meta_query
         );
+
+        //var_dump($args);
 
         // query
         return new WP_Query($args);
+    }
+
+
+    public function add_sort_to_current_url($param)
+    {
+        $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $url_parts = parse_url($actual_link);
+        if (isset($url_parts['query'])) {
+            parse_str($url_parts['query'], $params);
+        } else {
+            $params = array();
+        }
+        $params['sort'] = $param;
+        $url_parts['query'] = http_build_query($params);
+        return $url_parts['scheme'] . '://' . $url_parts['host'] . $url_parts['path'] . '?' . $url_parts['query'];
     }
 }

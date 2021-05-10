@@ -121,6 +121,23 @@ class Console implements ServiceInterface
                         'append' => '',
                         'maxlength' => '',
                     ),
+                    array(
+                        'key' => 'field_6098c475d1a32',
+                        'label' => 'Import Now',
+                        'name' => '',
+                        'type' => 'message',
+                        'instructions' => '',
+                        'required' => 0,
+                        'conditional_logic' => 0,
+                        'wrapper' => array(
+                            'width' => '',
+                            'class' => '',
+                            'id' => '',
+                        ),
+                        'message' => '<a href="https://affinityproperty.net.au/mam-reaxml-import/" target="_blank" class="button button-primary">Import Now</a>',
+                        'new_lines' => '',
+                        'esc_html' => 0,
+                    ),
                 ),
                 'location' => array(
                     array(
